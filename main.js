@@ -69,12 +69,15 @@ function main() {
     gl.enableVertexAttribArray(aColor);
 
     function render() {
-        gl.clearColor(1.0,      0.65,    0.0,    1.0);  // Oranye
-        //            Merah     Hijau   Biru    Transparansi
-        gl.clear(gl.COLOR_BUFFER_BIT);
-        theta += 0.1;
-        gl.uniform1f(uTheta, theta);
-        gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+        setTimeout(function(){
+            gl.clearColor(1.0,      0.65,    0.0,    1.0);  // Oranye
+            //            Merah     Hijau   Biru    Transparansi
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            theta += 0.1;
+            gl.uniform1f(uTheta, theta);
+            gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+            render();
+        }, 1000/30);
     }
-    setInterval(render, 1000/60);
+    render();
 }
