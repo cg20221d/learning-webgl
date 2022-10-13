@@ -54,15 +54,14 @@ function main() {
 
     // Vertex shader
     var vertexShaderCode =  `
-    attribute vec2 aPosition;
+    attribute vec3 aPosition;   // Sebelumnya vec2, makanya tidak tergambar kubus :D
     attribute vec3 aColor;
     uniform mat4 uModel;
     uniform mat4 uView;
     uniform mat4 uProjection;
     varying vec3 vColor;
     void main() {
-        vec2 position = aPosition;
-        gl_Position = uProjection * uView * uModel * vec4(position, 0.0, 1.0);
+        gl_Position = uProjection * uView * uModel * vec4(aPosition, 1.0);
         vColor = aColor;
     }
     `;
@@ -159,9 +158,10 @@ function main() {
     document.addEventListener("keyup", onKeyup);
 
     function render() {
+        gl.enable(gl.DEPTH_TEST);
         gl.clearColor(1.0,      0.65,    0.0,    1.0);  // Oranye
         //            Merah     Hijau   Biru    Transparansi
-        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         if (!freeze) {
             theta += 0.1;
         }
@@ -172,6 +172,12 @@ function main() {
             model, model, [horizontalDelta, verticalDelta, 0.0]
         );
         glMatrix.mat4.rotateX(
+            model, model, theta
+        );
+        glMatrix.mat4.rotateY(
+            model, model, theta
+        );
+        glMatrix.mat4.rotateZ(
             model, model, theta
         );
         gl.uniformMatrix4fv(uModel, false, model);
