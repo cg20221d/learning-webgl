@@ -60,12 +60,14 @@ function main() {
     uniform mat4 uModel;
     uniform mat4 uView;
     uniform mat4 uProjection;
+    varying vec3 vPosition;
     varying vec3 vColor;
     varying vec3 vNormal;
     void main() {
         gl_Position = uProjection * uView * uModel * vec4(aPosition, 1.0);
         vColor = aColor;
         vNormal = aNormal;
+        vPosition = (uModel * vec4(aPosition, 1.0)).xyz;
     }
     `;
     var vertexShaderObject = gl.createShader(gl.VERTEX_SHADER);
@@ -79,11 +81,13 @@ function main() {
     uniform vec3 uLightConstant;        // merepresentasikan warna sumber cahaya
     uniform float uAmbientIntensity;    // merepresentasikan intensitas cahaya sekitar
     varying vec3 vNormal;
-    uniform vec3 uLightDirection;       // vektor arah datang sumber cahaya
+    varying vec3 vPosition;             // titik fragmen
+    uniform vec3 uLightPosition;        // titik lokasi sumber cahaya
     uniform mat3 uNormalModel;
     void main() {
         vec3 ambient = uLightConstant * uAmbientIntensity;
-        vec3 normalizedLight = normalize(-uLightDirection);
+        vec3 lightRay = vPosition - uLightPosition;
+        vec3 normalizedLight = normalize(-lightRay);
         vec3 normalizedNormal = normalize(uNormalModel * vNormal);
         float cosTheta = dot(normalizedNormal, normalizedLight);
         vec3 diffuse = vec3(0.0, 0.0, 0.0);
@@ -155,8 +159,8 @@ function main() {
     var uAmbientIntensity = gl.getUniformLocation(shaderProgram, "uAmbientIntensity");
     gl.uniform3fv(uLightConstant, [1.0, 1.0, 1.0]);   // warna sumber cahaya: oranye
     gl.uniform1f(uAmbientIntensity, 0.4);               // intensitas cahaya: 40%
-    var uLightDirection = gl.getUniformLocation(shaderProgram, "uLightDirection");
-    gl.uniform3fv(uLightDirection, [2.0, 0.0, 0.0]);
+    var uLightPosition = gl.getUniformLocation(shaderProgram, "uLightPosition");
+    gl.uniform3fv(uLightPosition, [2.0, 0.0, 0.0]);
     var uNormalModel = gl.getUniformLocation(shaderProgram, "uNormalModel");
 
     // Grafika interaktif
@@ -195,7 +199,7 @@ function main() {
         //            Merah     Hijau   Biru    Transparansi
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         if (!freeze) {
-            theta += 0.05;
+            theta += 0.01;
         }
         horizontalDelta += horizontalSpeed;
         verticalDelta -= verticalSpeed;
